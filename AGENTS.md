@@ -1,7 +1,7 @@
 # AGENTS.md — terraceonhigh/SideScreen (personal fork)
 
 Fork of tranvuongquocdat/SideScreen (MIT): Mac host (Swift, `MacHost/`) streams
-a virtual display to an Android client (Kotlin, `AndroidClient/`). Primary
+a virtual display to an Android client (Kotlin, `AndroidClient/`). The human owner is **the Architect** (house convention). Primary
 device: **Pixel 9 Pro Fold** (inner screen 2076×2152, ~1:1.04, 390 dpi,
 Android 17), used as a wireless second screen for a MacBook (macOS 27, arm64).
 
@@ -10,6 +10,42 @@ Android 17), used as a wireless second screen for a MacBook (macOS 27, arm64).
 Duet-grade **wireless** experience on the Fold. Wireless mode already exists
 (QR pair, token auth, no adb; adb is only for USB mode via `adb reverse`).
 The work is reliability and polish, not a rewrite.
+
+## The bar: Sidecar-grade invisibility (house standard: `~/Labs/Comprador`)
+
+Read `~/Labs/AGENTS.md` (house law) first, then study Comprador as the model
+for what "done" feels like here: `Comprador/README.md` ("Plug in. … That's
+it."), `Comprador/CLAUDE.md` (decision records, icon states, the "Check your
+phone" UX), and `Comprador/docs/INVISIBILITY.md` (the thumb-drive baseline
+and a ranked gap list). SideScreen's equivalent baseline is **Sidecar**:
+
+1. **Open the lid near the phone → the second screen is there.** No clicking
+   Start, no picking a mode, no QR after the first pair. Headless/auto-start
+   and auto-reconnect should be the default, not a settings excursion.
+2. **No developer ceremony, ever, in the default path.** Wireless is the
+   product; USB/adb is a power-user option and must never be a prerequisite,
+   a red status row, or the first thing the settings window shows.
+3. **One expected moment of friction, then silence.** First launch primes
+   every permission (Screen Recording, Local Network, Accessibility, camera
+   on the phone) in one guided pass; after that, no alerts in steady state.
+   Stale-grant problems (upstream #77, the tccutil workaround) are detected
+   and fixed for the user, not documented at them.
+4. **Failures say what to do, in one line, and then self-heal.** Menu bar
+   icon states map to real states (idle / searching / connected /
+   error-with-reason); a dead link visibly reconnects instead of freezing
+   (#72); nothing is left stuck (#71: held mouse button).
+5. **No collateral damage.** Your cursor never gets lost on a screen you
+   can't see; the built-in display is never disabled (#39); stopping the app
+   removes the virtual display cleanly; other apps behave (#65).
+6. **Signed and notarized**, so first launch is a double-click. The fork is
+   ad-hoc signed today. Comprador's build identity setup
+   (`Comprador/docs/PLAN-BUILD-IDENTITY.md`) is the reference; signing
+   credentials are the Architect's to operate, per house secrets rules.
+
+Write a `docs/INVISIBILITY.md` for this project early (Sidecar baseline →
+where we match → gaps ranked by leverage) and keep it current; it should
+drive the queue below. Keep a `docs/DECISIONS.md` for anything that departs
+from upstream's design.
 
 ## Branches and remotes
 
@@ -46,7 +82,7 @@ package id, so installing one replaces it until the next Obtainium update.
 
 ## Hardware-in-the-loop rules
 
-- A Pixel is plugged in / on the same Wi-Fi only when the owner says so.
+- A Pixel is plugged in / on the same Wi-Fi only when the Architect says so.
   Don't assume it; `adb devices` first. The phone has a second user profile
   (user 12) adb can't access; ignore it.
 - Anything that needs eyes on the screen (picture quality, latency feel,
@@ -58,6 +94,15 @@ package id, so installing one replaces it until the next Obtainium update.
   Never disable or mirror the built-in display.
 
 ## Task queue (pick one, claim it by creating its branch)
+
+Order is a starting point; re-rank once `docs/INVISIBILITY.md` exists.
+
+- **Invisibility pass** (do first, in parallel with 0): write
+  `docs/INVISIBILITY.md` from the bar above by actually walking the
+  first-run and daily flows on both devices and logging every click,
+  prompt, and wait. Upstream's settings window (`SettingsWindow.swift`,
+  1.7k lines) and `MainActivity.kt` (1.8k lines) are where most of the
+  friction lives.
 
 0. **Fix the default SwiftPM build** (see above): absolute modulemap path
    (e.g. from `#filePath`) or a proper `.systemLibrary`/C target for the
